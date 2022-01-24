@@ -5,9 +5,7 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 import static org.quartz.JobBuilder.*;
@@ -16,18 +14,17 @@ import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
 
-    private static Connection connection;
-
     public static void main(String[] args) {
         try {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
-            data.put("store", connection);
+            Properties property = rabbitProperties();
+            data.put("store", initConnection(property));
             JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
-            initConnection();
+
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(Integer.parseInt(rabbitProperties()
+                    .withIntervalInSeconds(Integer.parseInt(property
                             .getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
@@ -35,7 +32,9 @@ public class AlertRabbit {
                     .withSchedule(times)
                     .build();
             scheduler.scheduleJob(job, trigger);
-        } catch (SchedulerException | ClassNotFoundException se) {
+            Thread.sleep(10000);
+            scheduler.shutdown();
+        } catch (SchedulerException | InterruptedException se) {
             se.printStackTrace();
         }
     }
@@ -51,22 +50,34 @@ public class AlertRabbit {
         return properties;
     }
 
+    private static Connection initConnection(Properties property) {
+        Connection connection = null;
+        try {
+            Class.forName(property.getProperty("driver_class"));
+            connection = DriverManager.getConnection(
+                    property.getProperty("url"),
+                    property.getProperty("username"),
+                    property.getProperty("password"));
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return connection;
+    }
+
     public static class Rabbit implements Job {
         @Override
         public void execute(JobExecutionContext context) {
-            System.out.println("Rabbit runs here ...");
-        }
-    }
+            Connection connection = (Connection) context
+                    .getJobDetail().getJobDataMap().get("Store");
+            try (PreparedStatement preparedStatement = connection.prepareStatement(
+                    "insert into rabbit (created_date) values (current_timestamp)"
+            )) {
+                preparedStatement.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-    private static void initConnection() throws ClassNotFoundException {
-        Class.forName(rabbitProperties().getProperty("driver_class"));
-        try {
-            connection = DriverManager.getConnection(
-                    rabbitProperties().getProperty("url"),
-                    rabbitProperties().getProperty("username"),
-                    rabbitProperties().getProperty("password"));
-        } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("Rabbit runs here ...");
         }
     }
 }

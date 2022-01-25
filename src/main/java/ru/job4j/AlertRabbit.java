@@ -22,7 +22,6 @@ public class AlertRabbit {
             Properties property = rabbitProperties();
             data.put("store", initConnection(property));
             JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
-
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(Integer.parseInt(property
                             .getProperty("rabbit.interval")))
@@ -68,7 +67,7 @@ public class AlertRabbit {
         @Override
         public void execute(JobExecutionContext context) {
             Connection connection = (Connection) context
-                    .getJobDetail().getJobDataMap().get("Store");
+                    .getJobDetail().getJobDataMap().get("store");
             try (PreparedStatement preparedStatement = connection.prepareStatement(
                     "insert into rabbit (created_date) values (current_timestamp)"
             )) {

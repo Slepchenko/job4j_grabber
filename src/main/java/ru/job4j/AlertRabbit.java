@@ -20,7 +20,11 @@ public class AlertRabbit {
             scheduler.start();
             JobDataMap data = new JobDataMap();
             Properties property = rabbitProperties();
-            data.put("store", initConnection(property));
+            try (Connection connection = initConnection(property)) {
+                data.put("store", connection);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             JobDetail job = newJob(Rabbit.class).usingJobData(data).build();
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(Integer.parseInt(property
@@ -49,18 +53,12 @@ public class AlertRabbit {
         return properties;
     }
 
-    private static Connection initConnection(Properties property) {
-        Connection connection = null;
-        try {
-            Class.forName(property.getProperty("driver_class"));
-            connection = DriverManager.getConnection(
-                    property.getProperty("url"),
-                    property.getProperty("username"),
-                    property.getProperty("password"));
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return connection;
+    private static Connection initConnection(Properties property) throws ClassNotFoundException, SQLException {
+        Class.forName(property.getProperty("driver_class"));
+        return DriverManager.getConnection(
+                property.getProperty("url"),
+                property.getProperty("username"),
+                property.getProperty("password"));
     }
 
     public static class Rabbit implements Job {
@@ -75,7 +73,6 @@ public class AlertRabbit {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
             System.out.println("Rabbit runs here ...");
         }
     }

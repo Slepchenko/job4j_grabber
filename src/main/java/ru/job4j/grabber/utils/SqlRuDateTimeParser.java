@@ -6,8 +6,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 
 public class SqlRuDateTimeParser implements DateTimeParser {
@@ -26,6 +29,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
             Map.entry("ноя", "11"),
             Map.entry("дек", "12")
     );
+    private static final String TODAY = "сегодня";
 
     @Override
     public LocalDateTime parse(String parse) {
@@ -38,13 +42,13 @@ public class SqlRuDateTimeParser implements DateTimeParser {
 
         if (parseDate.length == 5) {
         localDateTime = LocalDateTime.of(
-                Integer.parseInt(parseDate[2]),
+                Integer.parseInt("20".concat(parseDate[2])),
                 Integer.parseInt(MONTHS.get(parseDate[1])),
                 Integer.parseInt(parseDate[0]),
                 Integer.parseInt(parseDate[3]),
                 Integer.parseInt(parseDate[4]));
         } else {
-            if (parseDate[0].equals("сегодня")) {
+            if (parseDate[0].equals(TODAY)) {
                 localDateTime = LocalDateTime.now();
             } else {
                 localDateTime = LocalDateTime.now().minusDays(1);
@@ -57,11 +61,10 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
         Elements row = doc.select(".postslisttopic");
         SqlRuDateTimeParser a = new SqlRuDateTimeParser();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         for (Element td : row) {
             String parent = td.parent().children().get(5).text();
-            System.out.println(parent);
             System.out.println(a.parse(parent).format(formatter));
         }
     }

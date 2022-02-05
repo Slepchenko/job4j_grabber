@@ -47,7 +47,7 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         } else {
             String[] dateParse = dateTime[0].split(" ");
             LocalDate date = LocalDate.of(
-                    Integer.parseInt(dateParse[2]),
+                    Integer.parseInt("20".concat(dateParse[2])),
                     Integer.parseInt(MONTHS.get(dateParse[1])),
                     Integer.parseInt(dateParse[0])
             );

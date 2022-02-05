@@ -5,7 +5,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
@@ -26,31 +28,32 @@ public class SqlRuDateTimeParser implements DateTimeParser {
             Map.entry("дек", "12")
     );
     private static final String TODAY = "сегодня";
+    private static final String YESTERDAY = "вчера";
 
     @Override
     public LocalDateTime parse(String parse) {
-        LocalDateTime localDateTime;
-
-        String[] parseDate = parse
-                .replaceAll(",", "")
-                .replaceAll(":", " ")
-                .split(" ");
-
-        if (parseDate.length == 5) {
-        localDateTime = LocalDateTime.of(
-                Integer.parseInt("20".concat(parseDate[2])),
-                Integer.parseInt(MONTHS.get(parseDate[1])),
-                Integer.parseInt(parseDate[0]),
-                Integer.parseInt(parseDate[3]),
-                Integer.parseInt(parseDate[4]));
+        LocalDateTime result;
+        String[] dateTime = parse.split(", ");
+        String[] timeParse = dateTime[1].split(":");
+        LocalTime time = LocalTime.of(
+                Integer.parseInt(timeParse[0]),
+                Integer.parseInt(timeParse[1]));
+        if (dateTime[0].equals(TODAY)) {
+            LocalDate date = LocalDate.now();
+            result = LocalDateTime.of(date, time);
+        } else if (dateTime[0].equals(YESTERDAY)) {
+            LocalDate date = LocalDate.now().minusDays(1);
+            result = LocalDateTime.of(date, time);
         } else {
-            if (parseDate[0].equals(TODAY)) {
-                localDateTime = LocalDateTime.now();
-            } else {
-                localDateTime = LocalDateTime.now().minusDays(1);
-            }
+            String[] dateParse = dateTime[0].split(" ");
+            LocalDate date = LocalDate.of(
+                    Integer.parseInt(dateParse[2]),
+                    Integer.parseInt(MONTHS.get(dateParse[1])),
+                    Integer.parseInt(dateParse[0])
+            );
+            result = LocalDateTime.of(date, time);
         }
-        return localDateTime;
+        return result;
     }
 
     public static void main(String[] args) throws IOException {

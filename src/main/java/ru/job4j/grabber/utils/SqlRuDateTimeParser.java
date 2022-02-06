@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,14 +58,32 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     }
 
     public static void main(String[] args) throws IOException {
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
-        Elements row = doc.select(".postslisttopic");
-        SqlRuDateTimeParser a = new SqlRuDateTimeParser();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        String path = "https://www.sql.ru/forum/job-offers";
+        Document doc = Jsoup.connect(path).get();
 
-        for (Element td : row) {
-            String parent = td.parent().children().get(5).text();
-            System.out.println(a.parse(parent).format(formatter));
+        Elements pages = doc.select(".sort_options");
+        Elements els = pages.get(1).child(0).child(0).child(0).children();
+
+        int index = 1;
+        for (int i = 1; i < 6; i++) {
+            doc = Jsoup.connect(path).get();
+            Elements row = doc.select(".postslisttopic");
+            SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+            System.out.println("Page " + i);
+
+            for (Element td : row) {
+                String parent = td.parent().children().get(5).text();
+                System.out.println(index++ + " - " + parser.parse(parent).format(formatter));
+            }
+
+            Element href = els.get(i);
+            path = href.attr("href");
+
+            System.out.println();
+            System.out.println("=======================");
+            System.out.println();
         }
     }
 }

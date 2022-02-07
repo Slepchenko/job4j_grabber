@@ -30,6 +30,8 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     );
     private static final String TODAY = "сегодня";
     private static final String YESTERDAY = "вчера";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public LocalDateTime parse(String parse) {
@@ -58,32 +60,12 @@ public class SqlRuDateTimeParser implements DateTimeParser {
     }
 
     public static void main(String[] args) throws IOException {
-        String path = "https://www.sql.ru/forum/job-offers";
-        Document doc = Jsoup.connect(path).get();
-
-        Elements pages = doc.select(".sort_options");
-        Elements els = pages.get(1).child(0).child(0).child(0).children();
-
-        int index = 1;
-        for (int i = 1; i < 6; i++) {
-            doc = Jsoup.connect(path).get();
-            Elements row = doc.select(".postslisttopic");
-            SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-            System.out.println("Page " + i);
-
-            for (Element td : row) {
-                String parent = td.parent().children().get(5).text();
-                System.out.println(index++ + " - " + parser.parse(parent).format(formatter));
-            }
-
-            Element href = els.get(i);
-            path = href.attr("href");
-
-            System.out.println();
-            System.out.println("=======================");
-            System.out.println();
+        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
+        Elements row = doc.select(".postslisttopic");
+        SqlRuDateTimeParser dateTimeParser = new SqlRuDateTimeParser();
+        for (Element td : row) {
+            String parent = td.parent().children().get(5).text();
+            System.out.println(dateTimeParser.parse(parent).format(FORMATTER));
         }
     }
 }

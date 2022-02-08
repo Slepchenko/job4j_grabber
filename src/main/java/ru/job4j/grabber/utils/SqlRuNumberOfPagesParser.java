@@ -14,30 +14,16 @@ public class SqlRuNumberOfPagesParser {
             .ofPattern("yyyy-MM-dd HH:mm");
 
     public static void main(String[] args) throws IOException {
-        String path = "https://www.sql.ru/forum/job-offers";
-        Document doc = Jsoup.connect(path).get();
-
-        Elements pages = doc.select(".sort_options");
-        Elements els = pages.get(1).child(0).child(0).child(0).children();
-
-        int index = 1;
+        String path = "https://www.sql.ru/forum/job-offers/";
         for (int i = 1; i < 6; i++) {
-            doc = Jsoup.connect(path).get();
+            Document doc = Jsoup.connect(String.format(path + "%s", i)).get();
             Elements row = doc.select(".postslisttopic");
             SqlRuDateTimeParser dateTimeParser = new SqlRuDateTimeParser();
-            System.out.println("Page " + i);
 
             for (Element td : row) {
                 String parent = td.parent().children().get(5).text();
-                System.out.println(index++ + " - " + dateTimeParser.parse(parent).format(FORMATTER));
+                System.out.println(dateTimeParser.parse(parent).format(FORMATTER));
             }
-
-            Element href = els.get(i);
-            path = href.attr("href");
-
-            System.out.println();
-            System.out.println("=======================");
-            System.out.println();
         }
     }
 }

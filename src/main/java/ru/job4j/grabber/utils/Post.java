@@ -45,7 +45,8 @@ public class Post {
                 descElem.parent().child(0).text(),
                 descElem.child(0).child(0).attr("href"),
                 descElem.text(),
-                date.parse(desc.parents().get(1).child(2).child(0).textNodes().get(0).text().replace(" [", "").substring(1))
+                date.parse(desc.parents().get(1).child(2).child(0).textNodes().get(0).text()
+                        .replace(" [", "").substring(1))
                 );
     }
 

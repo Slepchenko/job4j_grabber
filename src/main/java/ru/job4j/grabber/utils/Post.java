@@ -121,7 +121,7 @@ public class Post {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println(Post.load("https://www.sql.ru/forum/1325330/" +
-                "lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t"));
+        System.out.println(Post.load("https://www.sql.ru/forum/1325330/"
+                + "lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t"));
     }
 }

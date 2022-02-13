@@ -1,11 +1,5 @@
 package ru.job4j.grabber.utils;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -34,20 +28,6 @@ public class Post {
         this.link = link;
         this.description = description;
         this.created = created;
-    }
-
-    public static Post load(String path) throws IOException {
-        Document doc = Jsoup.connect(path).get();
-        Elements desc = doc.select(".msgBody");
-        Element descElem = desc.parents().get(0);
-        SqlRuDateTimeParser date = new SqlRuDateTimeParser();
-        return new Post(
-                descElem.parent().child(0).text(),
-                descElem.child(0).child(0).attr("href"),
-                descElem.text(),
-                date.parse(desc.parents().get(1).child(2).child(0).textNodes().get(0).text()
-                        .replace(" [", "").substring(1))
-                );
     }
 
     public int getId() {
@@ -120,8 +100,4 @@ public class Post {
                 + '}';
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(Post.load("https://www.sql.ru/forum/1325330/"
-                + "lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t"));
-    }
 }

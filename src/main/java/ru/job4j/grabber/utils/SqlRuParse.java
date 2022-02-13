@@ -25,6 +25,7 @@ public class SqlRuParse implements Parse {
 
     @Override
     public Post detail(String link) throws IOException {
+
         Document doc = Jsoup.connect(link).get();
         SqlRuDateTimeParser date = new SqlRuDateTimeParser();
         return new Post(

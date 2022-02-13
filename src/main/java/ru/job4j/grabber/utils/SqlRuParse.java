@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SqlRuParse implements Parse{
+public class SqlRuParse implements Parse {
 
     private final List<Post> lists = new ArrayList<>();
 

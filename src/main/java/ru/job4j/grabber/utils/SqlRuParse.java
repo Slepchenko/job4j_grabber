@@ -30,7 +30,7 @@ public class SqlRuParse implements Parse {
         SqlRuDateTimeParser date = new SqlRuDateTimeParser();
         return new Post(
                 doc.select(".messageHeader").get(0).ownText(),
-                doc.head().child(5).attr("href"),
+                link,
                 doc.select(".msgBody").get(1).text(),
                 date.parse(doc.select(".msgFooter").get(0).textNodes().get(0).text()
                         .replace(" [", "").substring(1))

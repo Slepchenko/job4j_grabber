@@ -1,6 +1,5 @@
 package ru.job4j.grabber.utils;
 
-import java.io.*;
 import java.sql.*;
 import java.util.List;
 import java.util.Properties;
@@ -59,11 +58,4 @@ public class PsqlStore implements Store, AutoCloseable {
             cnn.close();
         }
     }
-
-//    public static void main(String[] args) throws SQLException, IOException {
-//        Properties properties = new Properties();
-//        File file = new File("C:/projects/job4j_grabber/src/main/java/resources/app.properties");
-//        properties.load(new FileReader(file));
-//        PsqlStore psqlStore = new PsqlStore(properties);
-//    }
 }

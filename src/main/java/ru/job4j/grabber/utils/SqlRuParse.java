@@ -59,6 +59,6 @@ public class SqlRuParse implements Parse {
     }
 
     private boolean isRequiredTitle(String name) {
-        return name.toLowerCase().contains("java") && !name.toLowerCase().contains("javascript");
+        return name.toLowerCase().contains("java");
     }
 }

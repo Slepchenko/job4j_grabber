@@ -4,6 +4,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
 
@@ -14,8 +15,8 @@ import static org.quartz.TriggerBuilder.newTrigger;
 public class Grabber implements Grab {
     private final Properties cfg = new Properties();
 
-    public Store store() {
-        return null;
+    public Store store() throws SQLException {
+        return new PsqlStore(cfg);
     }
 
     public Scheduler scheduler() throws SchedulerException {
@@ -56,8 +57,7 @@ public class Grabber implements Grab {
             JobDataMap map = context.getJobDetail().getJobDataMap();
             Store store = (Store) map.get("store");
             Parse parse = (Parse) map.get("parse");
-
-            List<Post> list = parse.list("https://www.sql.ru/forum/job-offers");
+            List<Post> list = parse.list("https://www.sql.ru/forum/job-offers/");
             for (Post post : list) {
                 store.save(post);
             }
